@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
@@ -16,22 +16,32 @@ interface Props {
   onClose: () => void;
   onSelectLibrary: (exercise: LibraryExercise) => void;
   onAddCustom: (name: string) => void;
+  /** Muscle groups the template targets: shown first as a "Your muscles" filter. */
+  focusGroups?: MuscleGroup[];
 }
 
-export function ExercisePicker({ visible, onClose, onSelectLibrary, onAddCustom }: Props) {
+export function ExercisePicker({ visible, onClose, onSelectLibrary, onAddCustom, focusGroups = [] }: Props) {
   const { colors } = useTheme();
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<MuscleGroup | null>(null);
+  const [filter, setFilter] = useState<MuscleGroup | 'focus' | null>(null);
+  const focusKey = focusGroups.join(',');
+
+  useEffect(() => {
+    if (visible) setFilter(focusGroups.length ? 'focus' : null);
+  }, [visible, focusKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     return EXERCISES.filter(
       (e) =>
-        (!filter || e.primary === filter || e.secondary.includes(filter)) &&
+        (!filter ||
+          (filter === 'focus'
+            ? focusGroups.includes(e.primary)
+            : e.primary === filter || e.secondary.includes(filter))) &&
         (!q || e.name.toLowerCase().includes(q) || e.equipment.includes(q) || e.primary.includes(q)),
     );
-  }, [query, filter]);
+  }, [query, filter, focusKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const close = () => {
     setQuery('');
@@ -51,6 +61,9 @@ export function ExercisePicker({ visible, onClose, onSelectLibrary, onAddCustom 
       />
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 4 }}>
+          {focusGroups.length ? (
+            <Chip label="Your muscles" active={filter === 'focus'} onPress={() => setFilter('focus')} />
+          ) : null}
           <Chip label="All" active={!filter} onPress={() => setFilter(null)} />
           {MUSCLE_GROUPS.map((g) => (
             <Chip key={g} label={capitalise(g)} active={filter === g} onPress={() => setFilter(g)} />

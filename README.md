@@ -6,6 +6,7 @@ ProjectBuilt is a cross-platform (iOS + Android) fitness tracking app built with
 
 - Workout templates (7 free, unlimited with Premium) built from a library of **98 exercises**
 - Quick workouts: pick the muscles you want to train and get a generated workout, or choose from pre-made ones
+- Progressive overload: each set shows what you lifted last time and whether you beat it
 - Set-by-set workout logging with an auto-starting rest timer, notes, a summary and a rating
 - Body-weight tracking with a chart (1W / 1M / 3M / All), a body map of the muscles you've worked, and workout history
 - Pre-written nutrition coaching, with some tips locked behind Premium
@@ -147,6 +148,7 @@ Edge Function secrets (set with the Supabase CLI, **not** in `.env`):
    | `…02_functions_and_triggers.sql` | `is_premium`, `is_username_available`, `delete_user_account`, `mark_admin_messages_read`, plus triggers that protect the subscription fields and enforce the 7-template free limit |
    | `…03_row_level_security.sql` | RLS on every table: users can only read/write their own rows; sending chat messages requires Premium |
    | `…04_realtime_and_admin.sql` | Realtime for `chat_messages`, the `admin_chat_inbox` view and the `admin_reply()` helper |
+| `…05_progressive_overload.sql` | The `progressive_overload` switch on templates, plus an index for looking up the last session of a template |
 
 3. **Auth → URL Configuration:**
    - Site URL: `projectbuilt://`
@@ -387,6 +389,13 @@ The questionnaire can be skipped at any time. Home then shows a "Personalise" ca
 **PAR-Q.** This step is required before any workout can be started. `useStartWorkout` redirects to the PAR-Q if it hasn't been completed. If any answer is "Yes", the user sees the "consult your GP" advice, the profile stores `parq_cleared = false`, and a warning banner appears on the active workout screen. Only the outcome is stored, not the individual answers (data minimisation).
 
 **Quick workout.** `workouts/quick` lets the user pick one or more muscle groups, and `src/utils/generateWorkout.ts` builds a workout from the exercise library. It uses the profile's equipment, goal and level, and **Shuffle** gives a new mix. Below that are coach-written pre-made workouts from `src/data/premade-workouts.ts`, filtered to the selected muscles. Any of them can be started straight away or saved as a template (the free plan's 7-template limit still applies).
+
+**Template builder & progressive overload.** New/Edit template lets the user name the template, pick the muscle groups it trains (which drives suggested exercises and a "Your muscles" filter in the exercise library), add exercises, and set sets, reps, weight and rest for each. Each template has a **Progressive overload** switch (`workout_templates.progressive_overload`, on by default). When it's on and the template has been done before, the active workout:
+- pre-fills each set with last session's numbers
+- shows a **LAST** column (e.g. `72.5kg × 6`) with ▲ / = / ▼ against what you're logging (heavier wins; at the same weight, more reps wins)
+- ends with a summary such as "You beat last time on 5 of 12 sets"
+
+The previous session is found by template ID, or by name for pre-made and generated workouts (`src/utils/overload.ts`).
 
 **Active workout.** The session lives in a persisted Zustand store, so it survives the app being closed. Ticking a set auto-starts the rest timer (±15s and Skip controls, with a vibration when it finishes). When the workout is finished, only completed sets are kept. The summary screen saves the session to `workout_logs`.
 

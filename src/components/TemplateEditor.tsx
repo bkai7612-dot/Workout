@@ -4,7 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { MUSCLE_GROUPS, type MuscleGroup, type TemplateExercise, type WeightUnit } from '@/types';
 import { uid } from '@/utils/id';
-import { capitalise, estimateTemplateMinutes } from '@/utils/workout';
+import { capitalise, estimateTemplateMinutes, muscleGroupsFromExercises } from '@/utils/workout';
+import { EXERCISES } from '@/data/exercises';
+import { Chip } from './Chip';
+import { ToggleRow } from './ToggleRow';
 import { parseNumber } from '@/utils/weight';
 import { AppText } from './AppText';
 import { Button } from './Button';
@@ -126,6 +129,18 @@ export function TemplateEditor({ initial, defaultUnit, saving, submitLabel, onSu
   const [name, setName] = useState(initial?.name ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [exercises, setExercises] = useState<TemplateExercise[]>(initial?.exercises ?? []);
+  const [muscles, setMuscles] = useState<MuscleGroup[]>(() =>
+    muscleGroupsFromExercises(initial?.exercises ?? []),
+  );
+  const [overload, setOverload] = useState(initial?.progressiveOverload ?? true);
+
+  // A few library suggestions for the chosen muscles that aren't in the template yet.
+  const suggestions = useMemo(() => {
+    const inTemplate = new Set(exercises.map((e) => e.libraryId).filter(Boolean));
+    return muscles.flatMap((m) =>
+      EXERCISES.filter((e) => e.primary === m && !inTemplate.has(e.id)).slice(0, muscles.length > 2 ? 2 : 3),
+    );
+  }, [muscles, exercises]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
 
@@ -167,7 +182,7 @@ export function TemplateEditor({ initial, defaultUnit, saving, submitLabel, onSu
       Alert.alert('Check your sets', 'Every exercise needs at least 1 set.');
       return;
     }
-    onSubmit({ name: name.trim(), description: description.trim() || null, exercises });
+    onSubmit({ name: name.trim(), description: description.trim() || null, exercises, progressiveOverload: overload });
   };
 
   return (
@@ -191,6 +206,33 @@ export function TemplateEditor({ initial, defaultUnit, saving, submitLabel, onSu
         multiline
         maxLength={280}
       />
+      <SectionHeader title="Muscle groups" />
+      <AppText variant="small" tone="secondary" style={{ marginBottom: 10 }}>
+        Choose the muscles this template trains. We'll suggest exercises and show them first in the library.
+      </AppText>
+      <View style={styles.chips}>
+        {MUSCLE_GROUPS.map((g) => (
+          <Chip
+            key={g}
+            label={capitalise(g)}
+            active={muscles.includes(g)}
+            onPress={() => setMuscles((list) => (list.includes(g) ? list.filter((x) => x !== g) : [...list, g]))}
+          />
+        ))}
+      </View>
+      {suggestions.length ? (
+        <>
+          <AppText variant="caption" tone="muted" style={{ marginTop: 6, marginBottom: 8 }}>
+            Suggested — tap to add
+          </AppText>
+          <View style={styles.chips}>
+            {suggestions.map((s) => (
+              <Chip key={s.id} label={`+ ${s.name}`} onPress={() => add(s.name, s.primary, s.id)} />
+            ))}
+          </View>
+        </>
+      ) : null}
+
       <SectionHeader title={`Exercises · est. ${minutes} min`} />
       {exercises.map((ex, i) => (
         <ExerciseEditor
@@ -207,12 +249,21 @@ export function TemplateEditor({ initial, defaultUnit, saving, submitLabel, onSu
       <AppText variant="caption" tone="muted" center style={{ marginTop: 8 }}>
         Estimated duration is calculated from sets × (rest time + ~40s per set).
       </AppText>
+      <View style={{ marginTop: 16 }}>
+        <ToggleRow
+          label="Progressive overload"
+          description="When you start this template, see what you lifted last time next to every set — and whether you beat it."
+          value={overload}
+          onChange={setOverload}
+        />
+      </View>
       <Button title={submitLabel} onPress={submit} loading={saving} style={{ marginTop: 24 }} />
       <ExercisePicker
         visible={pickerOpen}
         onClose={() => setPickerOpen(false)}
         onSelectLibrary={(e) => add(e.name, e.primary, e.id)}
-        onAddCustom={(n) => add(n, 'full body')}
+        onAddCustom={(n) => add(n, muscles[0] ?? 'full body')}
+        focusGroups={muscles}
       />
     </View>
   );
@@ -222,5 +273,6 @@ const styles = StyleSheet.create({
   exHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   iconBtn: { padding: 6, marginLeft: 4 },
   row: { flexDirection: 'row', gap: 10 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap' },
   col: { flex: 1 },
 });

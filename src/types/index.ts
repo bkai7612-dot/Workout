@@ -74,6 +74,8 @@ export interface WorkoutTemplate {
   description: string | null;
   exercises: TemplateExercise[];
   estimated_minutes: number | null;
+  /** Show last session's numbers next to each set so the user can beat them. */
+  progressive_overload: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -93,6 +95,8 @@ export interface ExerciseLog {
   restSeconds: number;
   notes: string;
   sets: SetLog[];
+  /** In-session only (not saved): what was done last time, for progressive overload. */
+  previousSets?: SetLog[];
 }
 
 export interface WorkoutLog {

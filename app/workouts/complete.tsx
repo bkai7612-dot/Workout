@@ -17,7 +17,7 @@ import { useActiveWorkoutStore } from '@/store/activeWorkoutStore';
 import { useAuthStore } from '@/store/authStore';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { ROUTES } from '@/constants/routes';
-import { formatDuration } from '@/utils/date';
+import { formatDate, formatDuration } from '@/utils/date';
 import { capitalise, muscleGroupsHit, totalCompletedSets, totalVolume } from '@/utils/workout';
 import { roundWeight } from '@/utils/weight';
 import { errorMessage } from '@/utils/validation';
@@ -108,6 +108,25 @@ export default function CompleteWorkout() {
         <AppText variant="small" tone="secondary" center style={{ marginTop: 10 }}>
           Total volume lifted: {roundWeight(volume, 0).toLocaleString('en-GB')} {unit}
         </AppText>
+      ) : null}
+
+      {finished.overload && finished.overload.compared > 0 ? (
+        <Card style={{ marginTop: 16, borderColor: colors.accentText }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="trending-up" size={22} color={colors.accentText} />
+            <AppText variant="h3" style={{ marginLeft: 8 }}>
+              Progressive overload
+            </AppText>
+          </View>
+          <AppText tone="secondary" style={{ marginTop: 6 }}>
+            You beat last time ({formatDate(finished.overload.previousDate, { day: 'numeric', month: 'short' })}) on{' '}
+            <AppText weight="700" tone="accent">
+              {finished.overload.beaten} of {finished.overload.compared}
+            </AppText>{' '}
+            sets{finished.overload.matched ? ` and matched ${finished.overload.matched}` : ''}.
+            {finished.overload.beaten > 0 ? ' Stronger than last time — nice work.' : ' Aim to add a rep or a little weight next time.'}
+          </AppText>
+        </Card>
       ) : null}
 
       <Card style={{ marginTop: 16 }}>

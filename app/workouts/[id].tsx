@@ -43,7 +43,12 @@ export default function EditTemplate() {
       <Button title="Start this workout" icon="play" variant="secondary" onPress={() => startWorkout(template)} style={{ marginBottom: 20 }} />
       <TemplateEditor
         key={template.id}
-        initial={{ name: template.name, description: template.description, exercises: template.exercises }}
+        initial={{
+          name: template.name,
+          description: template.description,
+          exercises: template.exercises,
+          progressiveOverload: template.progressive_overload ?? true,
+        }}
         defaultUnit={unit}
         saving={saving}
         submitLabel="Save changes"

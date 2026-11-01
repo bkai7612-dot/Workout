@@ -3,6 +3,8 @@ import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useProfileStore } from '@/store/profileStore';
 import { useActiveWorkoutStore } from '@/store/activeWorkoutStore';
+import { useWorkoutStore } from '@/store/workoutStore';
+import { findPreviousPerformance } from '@/utils/overload';
 import { ROUTES } from '@/constants/routes';
 import type { WorkoutSource } from '@/store/activeWorkoutStore';
 
@@ -28,7 +30,8 @@ export function useStartWorkout() {
     }
 
     const begin = () => {
-      useActiveWorkoutStore.getState().start(template, profile.weight_unit);
+      const previous = template ? findPreviousPerformance(useWorkoutStore.getState().logs, template) : null;
+      useActiveWorkoutStore.getState().start(template, profile.weight_unit, previous);
       router.push(ROUTES.activeWorkout);
     };
 

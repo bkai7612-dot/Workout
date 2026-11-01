@@ -7,6 +7,7 @@ export interface TemplateInput {
   name: string;
   description: string | null;
   exercises: TemplateExercise[];
+  progressiveOverload?: boolean;
 }
 
 interface WorkoutState {
@@ -65,6 +66,7 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
         description: input.description?.trim() || null,
         exercises: input.exercises,
         estimated_minutes: estimateTemplateMinutes(input.exercises),
+        progressive_overload: input.progressiveOverload ?? true,
       })
       .select('*')
       .single();
@@ -82,6 +84,7 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
         description: input.description?.trim() || null,
         exercises: input.exercises,
         estimated_minutes: estimateTemplateMinutes(input.exercises),
+        progressive_overload: input.progressiveOverload ?? true,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)

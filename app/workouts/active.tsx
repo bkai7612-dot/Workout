@@ -20,6 +20,8 @@ import type { ExerciseLog, SetLog } from '@/types';
 import { formatClock } from '@/utils/date';
 import { capitalise } from '@/utils/workout';
 import { parseNumber } from '@/utils/weight';
+import { compareSet, formatPreviousSet } from '@/utils/overload';
+import { formatDate } from '@/utils/date';
 
 function ElapsedClock({ startedAt }: { startedAt: string | null }) {
   const [now, setNow] = useState(Date.now());
@@ -35,7 +37,25 @@ function ElapsedClock({ startedAt }: { startedAt: string | null }) {
   );
 }
 
-function SetRow({ exercise, set, index }: { exercise: ExerciseLog; set: SetLog; index: number }) {
+function PreviousCell({ previous, set }: { previous: SetLog | undefined; set: SetLog }) {
+  const { colors } = useTheme();
+  const result = set.completed ? compareSet(set, previous) : null;
+  const icon = result === 'up' ? 'arrow-up' : result === 'down' ? 'arrow-down' : result === 'same' ? 'reorder-two' : null;
+  const color = result === 'up' ? colors.accentText : result === 'down' ? colors.danger : colors.textMuted;
+  return (
+    <View
+      style={styles.prev}
+      accessibilityLabel={`Last time ${formatPreviousSet(previous)}${result ? `, ${result === 'up' ? 'beaten' : result === 'same' ? 'matched' : 'below'}` : ''}`}
+    >
+      {icon ? <Ionicons name={icon} size={12} color={color} style={{ marginRight: 2 }} /> : null}
+      <AppText variant="caption" numberOfLines={1} adjustsFontSizeToFit style={{ color: result ? color : colors.textMuted }}>
+        {formatPreviousSet(previous)}
+      </AppText>
+    </View>
+  );
+}
+
+function SetRow({ exercise, set, index, showPrevious }: { exercise: ExerciseLog; set: SetLog; index: number; showPrevious: boolean }) {
   const { colors, radius } = useTheme();
   const updateSet = useActiveWorkoutStore((s) => s.updateSet);
   const toggle = useActiveWorkoutStore((s) => s.toggleSetComplete);
@@ -63,6 +83,7 @@ function SetRow({ exercise, set, index }: { exercise: ExerciseLog; set: SetLog; 
       >
         <AppText variant="bodyBold" tone="muted">{index + 1}</AppText>
       </Pressable>
+      {showPrevious ? <PreviousCell previous={exercise.previousSets?.[index]} set={set} /> : null}
       <TextInput
         style={inputStyle}
         value={weight}
@@ -108,7 +129,7 @@ function SetRow({ exercise, set, index }: { exercise: ExerciseLog; set: SetLog; 
   );
 }
 
-function ExerciseCard({ exercise }: { exercise: ExerciseLog }) {
+function ExerciseCard({ exercise, showPrevious }: { exercise: ExerciseLog; showPrevious: boolean }) {
   const { colors } = useTheme();
   const addSet = useActiveWorkoutStore((s) => s.addSet);
   const setNotes = useActiveWorkoutStore((s) => s.setNotes);
@@ -141,13 +162,14 @@ function ExerciseCard({ exercise }: { exercise: ExerciseLog }) {
       </View>
       <View style={styles.setHeader}>
         <AppText variant="caption" tone="muted" style={styles.setNum}>SET</AppText>
+        {showPrevious ? <AppText variant="caption" tone="muted" style={[styles.prev, { textAlign: 'center' }]}>LAST</AppText> : null}
         <AppText variant="caption" tone="muted" style={{ flex: 1, textAlign: 'center' }}>WEIGHT</AppText>
         <View style={{ width: 44 }} />
         <AppText variant="caption" tone="muted" style={{ flex: 1, textAlign: 'center' }}>REPS</AppText>
         <View style={{ width: 44 }} />
       </View>
       {exercise.sets.map((s, i) => (
-        <SetRow key={`${exercise.id}-${i}-${exercise.sets.length}`} exercise={exercise} set={s} index={i} />
+        <SetRow key={`${exercise.id}-${i}-${exercise.sets.length}`} exercise={exercise} set={s} index={i} showPrevious={showPrevious} />
       ))}
       <View style={styles.exFooter}>
         <Button title="Add set" icon="add" size="sm" variant="secondary" onPress={() => addSet(exercise.id)} style={{ flex: 1 }} />
@@ -191,6 +213,10 @@ export default function ActiveWorkout() {
   }
 
   const completedSets = state.exercises.reduce((a, e) => a + e.sets.filter((s) => s.completed).length, 0);
+  const beaten = state.exercises.reduce(
+    (a, e) => a + e.sets.filter((s, i) => s.completed && compareSet(s, e.previousSets?.[i]) === 'up').length,
+    0,
+  );
 
   const finish = () => {
     if (completedSets === 0) {
@@ -239,12 +265,29 @@ export default function ActiveWorkout() {
       <View style={{ flex: 1, backgroundColor: colors.background }}>
         <Screen edges={[]} contentStyle={{ paddingBottom: 140 }}>
           {!parqCleared ? <Banner tone="warning" message={PARQ_REFER_MESSAGE} /> : null}
+          {state.overload && state.previous ? (
+            <Card style={{ borderColor: colors.accentText }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="trending-up" size={20} color={colors.accentText} />
+                <AppText variant="bodyBold" style={{ marginLeft: 8, flex: 1 }}>
+                  Progressive overload
+                </AppText>
+                <AppText variant="caption" tone="accent" weight="700">
+                  {beaten} beaten
+                </AppText>
+              </View>
+              <AppText variant="small" tone="secondary" style={{ marginTop: 4 }}>
+                LAST shows what you did on {formatDate(state.previous.date, { weekday: 'short', day: 'numeric', month: 'short' })}. Add a rep or a
+                little weight to beat it.
+              </AppText>
+            </Card>
+          ) : null}
           {state.exercises.length === 0 ? (
             <Card>
               <EmptyState icon="add-circle-outline" title="Empty workout" message="Add exercises from the library or create your own." />
             </Card>
           ) : (
-            state.exercises.map((e) => <ExerciseCard key={e.id} exercise={e} />)
+            state.exercises.map((e) => <ExerciseCard key={e.id} exercise={e} showPrevious={state.overload} />)
           )}
           <Button title="Add exercise" icon="add" variant="outline" onPress={() => setPicker(true)} />
           <Button title="Finish workout" icon="flag-outline" onPress={finish} style={{ marginTop: 12 }} />
@@ -266,7 +309,8 @@ const styles = StyleSheet.create({
   exHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
   setHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
   setRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
-  setNum: { width: 32, alignItems: 'center', textAlign: 'center' },
+  setNum: { width: 28, alignItems: 'center', textAlign: 'center' },
+  prev: { width: 70, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   input: { flex: 1, height: 40, borderWidth: 1, textAlign: 'center', fontSize: 16, fontWeight: '600' },
   unit: { width: 44, height: 40, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
   check: { width: 44, height: 40, alignItems: 'center', justifyContent: 'center' },

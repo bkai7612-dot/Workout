@@ -8,8 +8,18 @@ export interface WorkoutSource {
   id?: string | null;
   name: string;
   exercises: TemplateExercise[];
+  progressiveOverload?: boolean;
+  /** Saved templates carry the database column name. */
+  progressive_overload?: boolean;
+}
+
+/** The last logged session of the same template, keyed by lower-cased exercise name. */
+export interface PreviousPerformance {
+  date: string;
+  exercises: Record<string, SetLog[]>;
 }
 import { uid } from '@/utils/id';
+import { compareSet } from '@/utils/overload';
 
 export interface FinishedWorkout {
   templateId: string | null;
@@ -18,6 +28,8 @@ export interface FinishedWorkout {
   completedAt: string;
   durationSeconds: number;
   exercises: ExerciseLog[];
+  /** Progressive overload result vs last time (null when tracking is off or there's no history). */
+  overload: { previousDate: string; beaten: number; matched: number; compared: number } | null;
 }
 
 interface ActiveWorkoutState {
@@ -26,11 +38,13 @@ interface ActiveWorkoutState {
   templateName: string;
   startedAt: string | null;
   exercises: ExerciseLog[];
+  overload: boolean;
+  previous: PreviousPerformance | null;
   restEndsAt: number | null;
   restDuration: number;
   finished: FinishedWorkout | null;
 
-  start: (template: WorkoutSource | null, defaultUnit: WeightUnit) => void;
+  start: (template: WorkoutSource | null, defaultUnit: WeightUnit, previous?: PreviousPerformance | null) => void;
   addExercise: (input: { name: string; muscleGroup: MuscleGroup; restSeconds?: number; unit: WeightUnit }) => void;
   removeExercise: (exerciseId: string) => void;
   updateSet: (exerciseId: string, setIndex: number, patch: Partial<SetLog>) => void;
@@ -52,6 +66,8 @@ const initial = {
   templateName: '',
   startedAt: null,
   exercises: [] as ExerciseLog[],
+  overload: false,
+  previous: null as PreviousPerformance | null,
   restEndsAt: null,
   restDuration: 0,
   finished: null,
@@ -71,21 +87,30 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
       return {
         ...initial,
 
-        start: (template, defaultUnit) => {
-          const exercises: ExerciseLog[] = (template?.exercises ?? []).map((ex) => ({
-            id: uid(),
-            name: ex.name,
-            muscleGroup: ex.muscleGroup,
-            targetReps: ex.reps,
-            restSeconds: ex.restSeconds,
-            notes: ex.notes ?? '',
-            sets: Array.from({ length: Math.max(1, ex.sets) }, () => ({
-              reps: parseTargetReps(ex.reps),
-              weight: ex.weight,
-              unit: ex.unit ?? defaultUnit,
-              completed: false,
-            })),
-          }));
+        start: (template, defaultUnit, previous = null) => {
+          const overload = (template?.progressiveOverload ?? template?.progressive_overload ?? true) && !!previous;
+          const exercises: ExerciseLog[] = (template?.exercises ?? []).map((ex) => {
+            const prev = overload ? previous?.exercises[ex.name.toLowerCase()] : undefined;
+            return {
+              id: uid(),
+              name: ex.name,
+              muscleGroup: ex.muscleGroup,
+              targetReps: ex.reps,
+              restSeconds: ex.restSeconds,
+              notes: ex.notes ?? '',
+              previousSets: prev,
+              sets: Array.from({ length: Math.max(1, ex.sets) }, (_, i) => {
+                const p = prev?.[Math.min(i, prev.length - 1)];
+                // Start from what you did last time (when the template has no fixed weight) — then try to beat it.
+                return {
+                  reps: p?.reps ?? parseTargetReps(ex.reps),
+                  weight: ex.weight ?? p?.weight ?? null,
+                  unit: ex.weight != null ? ex.unit ?? defaultUnit : p?.unit ?? ex.unit ?? defaultUnit,
+                  completed: false,
+                };
+              }),
+            };
+          });
           set({
             ...initial,
             active: true,
@@ -93,6 +118,8 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
             templateName: template?.name ?? 'Quick workout',
             startedAt: new Date().toISOString(),
             exercises,
+            overload,
+            previous: overload ? previous : null,
           });
         },
 
@@ -102,6 +129,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
               ...get().exercises,
               {
                 id: uid(),
+                previousSets: get().overload ? get().previous?.exercises[name.toLowerCase()] : undefined,
                 name,
                 muscleGroup,
                 targetReps: '',
@@ -169,9 +197,25 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()(
             durationSeconds: Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000),
             // Drop sets that were never completed so history reflects what was actually done.
             exercises: s.exercises
-              .map((e) => ({ ...e, sets: e.sets.filter((x) => x.completed) }))
+              .map(({ previousSets: _prev, ...e }) => ({ ...e, sets: e.sets.filter((x) => x.completed) }))
               .filter((e) => e.sets.length > 0 || e.notes.trim().length > 0),
+            overload: null,
           };
+          if (s.overload && s.previous) {
+            let beaten = 0;
+            let matched = 0;
+            let compared = 0;
+            s.exercises.forEach((e) =>
+              e.sets.forEach((cur, i) => {
+                const result = cur.completed ? compareSet(cur, e.previousSets?.[i]) : null;
+                if (!result) return;
+                compared++;
+                if (result === 'up') beaten++;
+                if (result === 'same') matched++;
+              }),
+            );
+            finished.overload = { previousDate: s.previous.date, beaten, matched, compared };
+          }
           set({ ...initial, finished });
           return finished;
         },
