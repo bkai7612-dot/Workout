@@ -180,7 +180,7 @@ export default function Home() {
             <AppText variant="small" tone="secondary" style={{ marginTop: 4 }}>
               Nothing planned for {WEEKDAY_NAMES[now.getDay()]}. Recover well — or start a quick session if you're feeling it.
             </AppText>
-            <Button title="Quick workout" variant="secondary" onPress={() => startWorkout(null)} style={{ marginTop: 14 }} />
+            <Button title="Quick workout" variant="secondary" onPress={() => router.push(ROUTES.quickWorkout)} style={{ marginTop: 14 }} />
           </>
         ) : templates.length === 0 ? (
           <>

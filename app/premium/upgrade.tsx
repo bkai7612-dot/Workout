@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { PurchasesPackage } from 'react-native-purchases';
@@ -10,7 +10,7 @@ import { Card } from '@/components/Card';
 import { Banner } from '@/components/Banner';
 import { useTheme } from '@/hooks/useTheme';
 import { usePremium } from '@/hooks/usePremium';
-import { useSubscriptionStore } from '@/store/subscriptionStore';
+import { useSubscriptionStore, type PurchaseResult } from '@/store/subscriptionStore';
 import { openManageSubscriptions } from '@/services/revenuecat';
 import { ROUTES } from '@/constants/routes';
 import { formatDate } from '@/utils/date';
@@ -25,10 +25,10 @@ const BENEFITS: { icon: keyof typeof Ionicons.glyphMap; title: string; body: str
 export default function Upgrade() {
   const { colors, radius } = useTheme();
   const premium = usePremium();
-  const { available, offering, loadOffering, purchase, restore } = useSubscriptionStore();
+  const { available, offering, loadOffering, purchase, restore, confirmWithServer } = useSubscriptionStore();
   const [loadingOffering, setLoadingOffering] = useState(true);
   const [selected, setSelected] = useState<PurchasesPackage | null>(null);
-  const [busy, setBusy] = useState<'buy' | 'restore' | null>(null);
+  const [busy, setBusy] = useState<'buy' | 'restore' | 'confirm' | null>(null);
 
   useEffect(() => {
     loadOffering().finally(() => setLoadingOffering(false));
@@ -45,33 +45,81 @@ export default function Upgrade() {
 
   const hasTrial = !!selected?.product.introPrice && selected.product.introPrice.price === 0;
 
-  const buy = async () => {
+  const handleResult = (result: PurchaseResult, restoring = false) => {
+    switch (result) {
+      case 'confirmed':
+        Alert.alert(
+          restoring ? 'Purchases restored' : 'Payment confirmed ⚡',
+          'Premium is now active: unlimited workout templates, every nutrition tip and chat with your coach.',
+        );
+        router.back();
+        break;
+      case 'confirming':
+        Alert.alert(
+          'Confirming your payment',
+          'Your store has accepted the payment and we are verifying it now. Premium unlocks as soon as it is confirmed — usually within a minute.',
+        );
+        break;
+      case 'pending':
+        Alert.alert(
+          'Payment pending',
+          'Your payment has not been completed yet (for example, it is waiting for approval). Premium will unlock once the payment goes through. You have not been charged.',
+        );
+        break;
+      case 'not_found':
+        Alert.alert('Nothing to restore', 'We could not find an active subscription for this store account.');
+        break;
+      default:
+        break; // cancelled: the user closed the payment sheet; nothing changes
+    }
+  };
+
+  const doBuy = async () => {
     if (!selected) return;
     setBusy('buy');
     try {
-      const ok = await purchase(selected);
-      if (ok) {
-        Alert.alert('Welcome to Premium! ⚡', 'Everything is unlocked. Thanks for supporting ProjectBuilt.');
-        router.back();
-      }
+      handleResult(await purchase(selected));
     } catch (e) {
-      Alert.alert('Purchase failed', errorMessage(e));
+      Alert.alert('Payment failed', `${errorMessage(e)}\n\nYou have not been charged.`);
     } finally {
       setBusy(null);
     }
   };
 
+  /** Step 1: confirm the plan and price in-app. Step 2: the store's payment sheet takes payment. */
+  const buy = () => {
+    if (!selected) return;
+    const annual = selected.packageType === 'ANNUAL';
+    const price = `${selected.product.priceString} per ${annual ? 'year' : 'month'}`;
+    const store = Platform.OS === 'ios' ? 'the App Store' : 'Google Play';
+    Alert.alert(
+      'Confirm your subscription',
+      `ProjectBuilt Premium — ${annual ? 'Yearly' : 'Monthly'}\n\n` +
+        (hasTrial ? `7-day free trial, then ${price}.` : `${price}.`) +
+        ` Renews automatically until cancelled.\n\nYou'll confirm payment with ${store} next. Premium unlocks once your payment is confirmed.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Continue to payment', onPress: doBuy },
+      ],
+    );
+  };
+
   const doRestore = async () => {
     setBusy('restore');
     try {
-      const ok = await restore();
-      Alert.alert(ok ? 'Purchases restored' : 'Nothing to restore', ok ? 'Premium is active again.' : 'We could not find an active subscription for this store account.');
-      if (ok) router.back();
+      handleResult(await restore(), true);
     } catch (e) {
       Alert.alert('Restore failed', errorMessage(e));
     } finally {
       setBusy(null);
     }
+  };
+
+  const recheck = async () => {
+    setBusy('confirm');
+    const ok = await confirmWithServer();
+    setBusy(null);
+    handleResult(ok ? 'confirmed' : 'confirming');
   };
 
   if (premium.isPremium) {
@@ -90,6 +138,25 @@ export default function Upgrade() {
         </View>
         <Button title="Chat with your coach" icon="chatbubbles-outline" onPress={() => router.replace(ROUTES.chat)} style={{ marginTop: 32 }} />
         <Button title="Manage Subscription" variant="outline" onPress={() => openManageSubscriptions(premium.managementURL)} style={{ marginTop: 10 }} />
+      </Screen>
+    );
+  }
+
+  if (premium.awaitingConfirmation) {
+    return (
+      <Screen edges={['bottom']}>
+        <View style={{ alignItems: 'center', marginTop: 40 }}>
+          <ActivityIndicator size="large" color={colors.accentText} />
+          <AppText variant="h2" center style={{ marginTop: 20 }}>
+            Confirming your payment
+          </AppText>
+          <AppText tone="secondary" center style={{ marginTop: 8, lineHeight: 22 }}>
+            Your store has accepted the purchase. We're verifying it with our server — Premium unlocks as soon as payment is
+            confirmed.
+          </AppText>
+        </View>
+        <Button title="Check again" onPress={recheck} loading={busy === 'confirm'} style={{ marginTop: 32 }} />
+        <Button title="Close" variant="ghost" onPress={() => router.back()} style={{ marginTop: 6 }} />
       </Screen>
     );
   }
@@ -176,7 +243,7 @@ export default function Upgrade() {
       )}
 
       <Button
-        title={hasTrial ? 'Start 7-day free trial' : 'Subscribe'}
+        title={hasTrial ? 'Start 7-day free trial' : 'Continue to payment'}
         onPress={buy}
         loading={busy === 'buy'}
         disabled={!selected || busy != null}

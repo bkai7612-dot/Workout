@@ -141,6 +141,14 @@ export default function Profile() {
               style={{ marginTop: 10 }}
             />
           </>
+        ) : premium.awaitingConfirmation ? (
+          <>
+            <AppText variant="h3">Confirming your payment…</AppText>
+            <AppText variant="small" tone="secondary" style={{ marginTop: 4 }}>
+              Your store has accepted the purchase. Premium unlocks as soon as we've confirmed the payment.
+            </AppText>
+            <Button title="Check status" variant="outline" onPress={() => router.push(ROUTES.upgrade)} style={{ marginTop: 14 }} />
+          </>
         ) : (
           <>
             <AppText variant="h3">Free plan</AppText>

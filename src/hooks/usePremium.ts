@@ -1,26 +1,23 @@
 import { useProfileStore } from '@/store/profileStore';
-import { useSubscriptionStore } from '@/store/subscriptionStore';
+import { profileHasPremium, useSubscriptionStore } from '@/store/subscriptionStore';
 
 /**
- * Premium if RevenueCat reports an active entitlement on this device, or the
- * server-side profile (updated by the RevenueCat webhook) says so.
+ * Premium is only granted once payment has been confirmed server-side
+ * (RevenueCat → Supabase, via the webhook or the sync-subscription function).
+ * The same check (public.is_premium) gates chat and template limits in the
+ * database, so the app and server always agree.
  */
 export function usePremium() {
   const rc = useSubscriptionStore();
   const profile = useProfileStore((s) => s.profile);
-  // Mirrors public.is_premium() in the database: cancelled / billing-issue
-  // subscriptions keep access until their expiry date.
-  const status = profile?.subscription_status ?? 'none';
-  const expiry = profile?.subscription_expiry ? new Date(profile.subscription_expiry) : null;
-  const serverActive =
-    ['active', 'trialing', 'cancelled', 'billing_issue'].includes(status) &&
-    (expiry ? expiry > new Date() : status === 'active' || status === 'trialing');
-  const isPremium = rc.isPremium || serverActive;
+  const isPremium = profileHasPremium(profile);
   return {
     isPremium,
-    expiry: rc.expirationDate ?? profile?.subscription_expiry ?? null,
-    willRenew: rc.isPremium ? rc.willRenew : profile?.subscription_status === 'active',
-    isTrial: rc.isTrial || profile?.subscription_status === 'trialing',
+    /** Store says paid, server verification still in progress. */
+    awaitingConfirmation: !isPremium && (rc.awaitingConfirmation || rc.isPremium),
+    expiry: profile?.subscription_expiry ?? rc.expirationDate ?? null,
+    willRenew: profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing',
+    isTrial: profile?.subscription_status === 'trialing' || rc.isTrial,
     managementURL: rc.managementURL,
   };
 }

@@ -13,6 +13,7 @@ export const ROUTES = {
   profile: '/(tabs)/profile',
   newTemplate: '/workouts/new-template',
   editTemplate: (id: string) => `/workouts/${id}`,
+  quickWorkout: '/workouts/quick',
   activeWorkout: '/workouts/active',
   completeWorkout: '/workouts/complete',
   weightLog: '/progress/weight-log',

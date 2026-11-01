@@ -85,19 +85,22 @@ export default function Workouts() {
       <AppText variant="h1">Workouts</AppText>
 
       <View style={styles.actions}>
+        {activeWorkout ? (
+          <Button title="Resume" icon="play" size="sm" onPress={() => router.push(ROUTES.activeWorkout)} />
+        ) : null}
         <Button
-          title={activeWorkout ? 'Resume workout' : 'Quick workout'}
-          icon={activeWorkout ? 'play' : 'flash-outline'}
-          onPress={() => (activeWorkout ? router.push(ROUTES.activeWorkout) : startWorkout(null))}
-          style={{ flex: 1 }}
+          title="Quick workout"
+          icon="flash-outline"
+          size="sm"
+          variant={activeWorkout ? 'secondary' : 'primary'}
+          onPress={() => router.push(ROUTES.quickWorkout)}
         />
-        <Button title="New template" icon="add" variant="secondary" onPress={newTemplate} style={{ flex: 1 }} />
+        <Button title="New template" icon="add" size="sm" variant="secondary" onPress={newTemplate} />
+        <Button title="History" icon="time-outline" size="sm" variant="secondary" onPress={() => router.push(ROUTES.history)} />
       </View>
 
       <SectionHeader
         title={isPremium ? `My templates (${templates.length})` : `My templates (${templates.length}/${FREE_TEMPLATE_LIMIT})`}
-        actionLabel="History"
-        onAction={() => router.push(ROUTES.history)}
       />
       {templates.length === 0 ? (
         <Card>
@@ -208,7 +211,7 @@ export default function Workouts() {
 }
 
 const styles = StyleSheet.create({
-  actions: { flexDirection: 'row', gap: 10, marginTop: 16, marginBottom: 4 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'flex-start' },
   planRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth },
 });

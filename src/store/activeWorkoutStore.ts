@@ -1,7 +1,14 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { chunkedSecureStorage } from '@/services/secureStorage';
-import type { ExerciseLog, MuscleGroup, SetLog, WeightUnit, WorkoutTemplate } from '@/types';
+import type { ExerciseLog, MuscleGroup, SetLog, TemplateExercise, WeightUnit } from '@/types';
+
+/** Anything a workout can be started from: a saved template, a pre-made or a generated workout. */
+export interface WorkoutSource {
+  id?: string | null;
+  name: string;
+  exercises: TemplateExercise[];
+}
 import { uid } from '@/utils/id';
 
 export interface FinishedWorkout {
@@ -23,7 +30,7 @@ interface ActiveWorkoutState {
   restDuration: number;
   finished: FinishedWorkout | null;
 
-  start: (template: WorkoutTemplate | null, defaultUnit: WeightUnit) => void;
+  start: (template: WorkoutSource | null, defaultUnit: WeightUnit) => void;
   addExercise: (input: { name: string; muscleGroup: MuscleGroup; restSeconds?: number; unit: WeightUnit }) => void;
   removeExercise: (exerciseId: string) => void;
   updateSet: (exerciseId: string, setIndex: number, patch: Partial<SetLog>) => void;

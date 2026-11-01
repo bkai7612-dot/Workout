@@ -104,16 +104,29 @@ export async function getCurrentOffering(): Promise<PurchasesOffering | null> {
   }
 }
 
-/** Returns updated CustomerInfo, or null if the user cancelled. */
-export async function purchasePackage(pkg: PurchasesPackage): Promise<CustomerInfo | null> {
+export type PurchaseOutcome =
+  | { kind: 'purchased'; customerInfo: CustomerInfo }
+  | { kind: 'cancelled' }
+  /** Payment not yet taken (e.g. Ask to Buy, slow card, cash payment on Play). */
+  | { kind: 'pending' };
+
+/**
+ * Starts the store purchase. The App Store / Google Play payment sheet is where
+ * the user confirms and pays; we only report 'purchased' once the store has
+ * returned a completed transaction.
+ */
+export async function purchasePackage(pkg: PurchasesPackage): Promise<PurchaseOutcome> {
   if (!configured || !Purchases) throw new Error('Purchases are unavailable in this build.');
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
-    return customerInfo;
+    return { kind: 'purchased', customerInfo };
   } catch (e: unknown) {
-    if (e && typeof e === 'object' && 'userCancelled' in e && (e as { userCancelled: boolean }).userCancelled) {
-      return null;
-    }
+    const err = e as { userCancelled?: boolean; code?: string };
+    if (err?.userCancelled) return { kind: 'cancelled' };
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const codes = require('react-native-purchases').PURCHASES_ERROR_CODE as Record<string, string> | undefined;
+    if (err?.code && (err.code === codes?.PAYMENT_PENDING_ERROR || err.code === '20')) return { kind: 'pending' };
+    if (err?.code && err.code === codes?.PURCHASE_CANCELLED_ERROR) return { kind: 'cancelled' };
     throw e;
   }
 }

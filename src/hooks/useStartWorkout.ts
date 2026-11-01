@@ -4,14 +4,14 @@ import { router } from 'expo-router';
 import { useProfileStore } from '@/store/profileStore';
 import { useActiveWorkoutStore } from '@/store/activeWorkoutStore';
 import { ROUTES } from '@/constants/routes';
-import type { WorkoutTemplate } from '@/types';
+import type { WorkoutSource } from '@/store/activeWorkoutStore';
 
 /**
  * Starts a workout from a template (or an empty ad-hoc one). Enforces the PAR-Q
  * health screen before any workout is logged, and protects an in-progress session.
  */
 export function useStartWorkout() {
-  return useCallback((template: WorkoutTemplate | null) => {
+  return useCallback((template: WorkoutSource | null) => {
     const profile = useProfileStore.getState().profile;
     const active = useActiveWorkoutStore.getState();
 

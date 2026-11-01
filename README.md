@@ -5,6 +5,7 @@
 ProjectBuilt is a cross-platform (iOS + Android) fitness tracking app built with **React Native + Expo (SDK 51)**, **Expo Router**, **Supabase**, **Zustand** and **RevenueCat**.
 
 - Workout templates (7 free, unlimited with Premium) built from a library of **98 exercises**
+- Quick workouts: pick the muscles you want to train and get a generated workout, or choose from pre-made ones
 - Set-by-set workout logging with an auto-starting rest timer, notes, a summary and a rating
 - Body-weight tracking with a chart (1W / 1M / 3M / All), a body map of the muscles you've worked, and workout history
 - Pre-written nutrition coaching, with some tips locked behind Premium
@@ -119,6 +120,7 @@ Edge Function secrets (set with the Supabase CLI, **not** in `.env`):
 
 | Secret | Purpose |
 | --- | --- |
+| `REVENUECAT_SECRET_API_KEY` | RevenueCat secret API key (`sk_…`), used by `sync-subscription` to confirm payments |
 | `REVENUECAT_WEBHOOK_AUTH` | Shared secret that RevenueCat sends in the `Authorization` header, e.g. `Bearer 3f9…` |
 | `REVENUECAT_ENTITLEMENT` | Optional, defaults to `premium` |
 
@@ -217,7 +219,21 @@ The app calls `Purchases.configure({ appUserID: <supabase user id> })`, so Reven
 
 ### 3. Sync subscription status to Supabase (required)
 
-Premium is enforced **server-side**. RLS only lets Premium users send chat messages, and a trigger blocks a free user's 8th template. The subscription fields can only be written by the service role, so you must deploy the webhook:
+Premium is enforced **server-side**. RLS only lets Premium users send chat messages, and a trigger blocks a free user's 8th template. The subscription fields can only be written by the service role, so you must deploy **both** functions below.
+
+**a) Payment confirmation (`sync-subscription`).** Straight after a purchase or restore, the app calls this function. It looks the user up with RevenueCat's REST API (RevenueCat validates the App Store / Google Play receipt) and records the result on the profile. Premium is unlocked only when this confirms an active, paid (or free-trial) entitlement.
+
+```bash
+npx supabase functions deploy sync-subscription
+```
+
+```bash
+npx supabase secrets set REVENUECAT_SECRET_API_KEY="sk_your_secret_key"
+```
+
+Use the **secret** API key from RevenueCat → Project → API keys. Never put it in the app.
+
+**b) Ongoing updates (`revenuecat-webhook`).** Renewals, cancellations, billing issues and expiries arrive through the webhook:
 
 ```bash
 npx supabase functions deploy revenuecat-webhook --no-verify-jwt
@@ -233,7 +249,18 @@ Then in **RevenueCat → Project → Integrations → Webhooks**:
 
 Use "Send test event" to check the connection. Test events are acknowledged and ignored.
 
-The app also reads RevenueCat's `CustomerInfo` directly, so Premium unlocks on the device straight after purchase. The database catches up within a few seconds through the webhook.
+**Purchase flow in the app:**
+1. The user picks a plan, and an in-app dialog shows the plan, price, trial and auto-renewal terms.
+2. **Continue to payment** opens the App Store / Google Play payment sheet, where the user confirms and pays.
+3. The app calls `sync-subscription`, retrying for a few seconds. Premium (unlimited templates, locked tips, chat) unlocks only once the server has confirmed payment.
+
+| What happens | What the user sees |
+| --- | --- |
+| Payment is still pending (Ask to Buy, slow card) | "Payment pending". Nothing is unlocked. |
+| The store has accepted it but the server hasn't confirmed yet | "Confirming your payment…" with a **Check again** button |
+| The user cancels the payment sheet | Nothing changes |
+
+Because the app and the database both read the same server-confirmed status, unlimited templates work as soon as the purchase is confirmed. The database's template-limit trigger never disagrees with the app.
 
 **Manage Subscription** in Profile opens the native App Store subscription sheet on iOS, or the Google Play subscriptions page on Android.
 
@@ -359,6 +386,8 @@ The questionnaire can be skipped at any time. Home then shows a "Personalise" ca
 
 **PAR-Q.** This step is required before any workout can be started. `useStartWorkout` redirects to the PAR-Q if it hasn't been completed. If any answer is "Yes", the user sees the "consult your GP" advice, the profile stores `parq_cleared = false`, and a warning banner appears on the active workout screen. Only the outcome is stored, not the individual answers (data minimisation).
 
+**Quick workout.** `workouts/quick` lets the user pick one or more muscle groups, and `src/utils/generateWorkout.ts` builds a workout from the exercise library. It uses the profile's equipment, goal and level, and **Shuffle** gives a new mix. Below that are coach-written pre-made workouts from `src/data/premade-workouts.ts`, filtered to the selected muscles. Any of them can be started straight away or saved as a template (the free plan's 7-template limit still applies).
+
 **Active workout.** The session lives in a persisted Zustand store, so it survives the app being closed. Ticking a set auto-starts the rest timer (±15s and Skip controls, with a vibration when it finishes). When the workout is finished, only completed sets are kept. The summary screen saves the session to `workout_logs`.
 
 **Weight units.** Every weight is stored with the unit it was entered in, and converted for display using the profile's `weight_unit`.
@@ -373,7 +402,7 @@ The questionnaire can be skipped at any time. Home then shows a "Personalise" ca
 
 | Area | How Premium is decided |
 | --- | --- |
-| Client | `usePremium()` checks the RevenueCat entitlement **or** the server-side subscription fields |
+| Client | `usePremium()` reads only the server-confirmed subscription fields on the profile (set by `sync-subscription` or the webhook). A store entitlement that hasn't been confirmed yet shows as "Confirming your payment…" |
 | Server | `public.is_premium(uid)`, used by RLS and the template-limit trigger |
 
 **Content.** Nutrition tips, Sunday advice, exercises, PAR-Q and legal text are all plain TypeScript files in `src/data/`. Edit them without touching any screens.
