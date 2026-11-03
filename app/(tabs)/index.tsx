@@ -186,7 +186,7 @@ export default function Home() {
           <>
             <AppText variant="h3">Create your first template</AppText>
             <AppText variant="small" tone="secondary" style={{ marginTop: 4 }}>
-              Build a workout from our library of 80+ exercises, then log it set by set.
+              Build a workout from our library of 170 exercises, then log it set by set.
             </AppText>
             <Button title="Create a workout template" icon="add" onPress={() => router.push(ROUTES.newTemplate)} style={{ marginTop: 14 }} />
           </>

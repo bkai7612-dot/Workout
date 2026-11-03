@@ -11,6 +11,28 @@ import { Chip } from './Chip';
 import { TextField } from './TextField';
 import { Button } from './Button';
 
+/** Common gym shorthand people type into search. */
+const SYNONYMS: Record<string, string> = {
+  db: 'dumbbell',
+  dbs: 'dumbbell',
+  bb: 'barbell',
+  kb: 'kettlebell',
+  bw: 'bodyweight',
+  pecs: 'chest',
+  lats: 'back',
+  delts: 'shoulders',
+  quads: 'legs',
+  hamstrings: 'legs',
+  hams: 'legs',
+  calves: 'legs',
+  abs: 'core',
+  bum: 'glutes',
+  glute: 'glutes',
+  bicep: 'biceps',
+  tricep: 'triceps',
+  shoulder: 'shoulders',
+};
+
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -32,15 +54,30 @@ export function ExercisePicker({ visible, onClose, onSelectLibrary, onAddCustom,
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return EXERCISES.filter(
-      (e) =>
-        (!filter ||
-          (filter === 'focus'
-            ? focusGroups.includes(e.primary)
-            : e.primary === filter || e.secondary.includes(filter))) &&
-        (!q || e.name.toLowerCase().includes(q) || e.equipment.includes(q) || e.primary.includes(q)),
-    );
+    // Every word must match the name, a muscle or the equipment ("incline db", "cable chest", "glute").
+    const tokens = query
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((t) => SYNONYMS[t] ?? t);
+    return EXERCISES.filter((e) => {
+      const inFilter =
+        !filter ||
+        (filter === 'focus'
+          ? focusGroups.includes(e.primary)
+          : e.primary === filter || e.secondary.includes(filter));
+      if (!inFilter) return false;
+      if (!tokens.length) return true;
+      const haystack = `${e.name} ${e.primary} ${e.secondary.join(' ')} ${e.equipment}`.toLowerCase();
+      return tokens.every((t) => haystack.includes(t));
+    }).sort((a, b) => {
+      // Rank direct hits (name or primary muscle) above secondary-muscle matches.
+      const score = (e: LibraryExercise) =>
+        tokens.filter((t) => `${e.name} ${e.primary}`.toLowerCase().includes(t)).length * 2 +
+        (filter && filter !== 'focus' && e.primary === filter ? 1 : 0);
+      return score(b) - score(a);
+    });
   }, [query, filter, focusKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const close = () => {
@@ -52,7 +89,7 @@ export function ExercisePicker({ visible, onClose, onSelectLibrary, onAddCustom,
   return (
     <AppModal visible={visible} onClose={close} title="Add exercise" fullHeight>
       <TextField
-        placeholder="Search 80+ exercises"
+        placeholder={`Search ${EXERCISES.length} exercises — e.g. "incline db"`}
         value={query}
         onChangeText={setQuery}
         autoCorrect={false}

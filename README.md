@@ -4,7 +4,7 @@
 
 ProjectBuilt is a cross-platform (iOS + Android) fitness tracking app built with **React Native + Expo (SDK 51)**, **Expo Router**, **Supabase**, **Zustand** and **RevenueCat**.
 
-- Workout templates (7 free, unlimited with Premium) built from a library of **98 exercises**
+- Workout templates (7 free, unlimited with Premium) built from a searchable library of **170 exercises** (at least 15 for every muscle group)
 - Quick workouts: pick the muscles you want to train and get a generated workout, or choose from pre-made ones
 - Progressive overload: each set shows what you lifted last time and whether you beat it
 - Set-by-set workout logging with an auto-starting rest timer, notes, a summary and a rating
@@ -50,7 +50,7 @@ app/                          Expo Router (file-based routes)
 src/
   components/                 Reusable UI (Button, Card, BodyMap, LineChart, RestTimer, …)
   constants/                  theme.ts, routes.ts
-  data/                       exercises.ts (98), nutrition.ts, sunday-advice.ts, parq.ts, legal.ts, …
+  data/                       exercises.ts (170), nutrition.ts, sunday-advice.ts, parq.ts, legal.ts, …
   hooks/                      useTheme, usePremium, useUnit, useStartWorkout
   services/                   supabase.ts, auth.ts, revenuecat.ts, secureStorage.ts
   store/                      Zustand stores (auth, profile, workout, activeWorkout, weight, subscription, chat, theme)

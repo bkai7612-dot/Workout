@@ -620,6 +620,458 @@ export const EXERCISES: LibraryExercise[] = [
     'Keep your back flat and hips low.',
     'Crawl forward and backward for distance or time.',
   ]),
+  // ═════════════ EXTENDED LIBRARY ═════════════
+  // ───────────── CHEST (more) ─────────────
+  ex('decline-bench-press', 'Decline Barbell Bench Press', 'chest', ['triceps'], 'barbell', [
+    'Secure your legs on a decline bench set to 15–30°.',
+    'Unrack the bar with a grip slightly wider than shoulder-width.',
+    'Lower the bar to your lower chest under control.',
+    'Press back up to lockout. Use a spotter for heavy sets.',
+  ]),
+  ex('decline-db-press', 'Decline Dumbbell Press', 'chest', ['triceps'], 'dumbbell', [
+    'Lie on a decline bench holding dumbbells at chest level.',
+    'Press up until your arms are straight.',
+    'Lower slowly to the sides of your lower chest.',
+    'Keep your shoulder blades pinned to the bench.',
+  ]),
+  ex('incline-db-fly', 'Incline Dumbbell Fly', 'chest', ['shoulders'], 'dumbbell', [
+    'Set a bench to 30° and hold dumbbells above your upper chest, palms facing.',
+    'With soft elbows, lower the weights out in a wide arc.',
+    'Stop when you feel a stretch across your upper chest.',
+    'Squeeze them back together over your chest.',
+  ]),
+  ex('low-cable-fly', 'Low-to-High Cable Fly', 'chest', ['shoulders'], 'cable', [
+    'Set both pulleys at the lowest position and grab a handle in each hand.',
+    'Step forward into a split stance with arms down by your sides, slight elbow bend.',
+    'Sweep your hands up and together to upper-chest height.',
+    'Lower slowly back to the start.',
+  ]),
+  ex('smith-incline-press', 'Smith Machine Incline Press', 'chest', ['shoulders', 'triceps'], 'machine', [
+    'Place an incline bench (30–45°) under a Smith machine bar.',
+    'Grip just wider than shoulders and unhook the bar.',
+    'Lower it to your upper chest.',
+    'Press back up and re-rack by rotating the bar.',
+  ]),
+  ex('wide-push-up', 'Wide-Grip Push-Up', 'chest', ['shoulders'], 'bodyweight', [
+    'Set your hands about one and a half times shoulder-width apart.',
+    'Keep your body in a straight line from head to heels.',
+    'Lower your chest towards the floor.',
+    'Press back up, squeezing your chest.',
+  ]),
+  ex('svend-press', 'Svend Press', 'chest', ['shoulders'], 'dumbbell', [
+    'Stand holding a plate or light dumbbell between your palms at chest height.',
+    'Squeeze your hands together hard.',
+    'Press the weight straight out in front of you.',
+    'Bring it back to your chest while keeping the squeeze.',
+  ]),
+  ex('db-pullover', 'Dumbbell Pullover', 'chest', ['back'], 'dumbbell', [
+    'Lie across or along a bench holding one dumbbell above your chest with both hands.',
+    'With slightly bent elbows, lower the dumbbell back over your head.',
+    'Stop when you feel a stretch through your chest and lats.',
+    'Pull it back over your chest.',
+  ]),
+  ex('band-chest-press', 'Resistance Band Chest Press', 'chest', ['triceps'], 'band', [
+    'Anchor a band behind you at chest height, or wrap it around your back.',
+    'Hold the handles at chest level.',
+    'Press forward until your arms are straight.',
+    'Return slowly against the tension.',
+  ]),
+
+  // ───────────── BACK (more) ─────────────
+  ex('neutral-grip-pulldown', 'Close-Grip Lat Pulldown', 'back', ['biceps'], 'cable', [
+    'Attach a V-handle and sit with your thighs under the pads.',
+    'Pull the handle to your upper chest, leaning back slightly.',
+    'Drive your elbows down and back.',
+    'Return slowly to full stretch.',
+  ]),
+  ex('pendlay-row', 'Pendlay Row', 'back', ['biceps', 'core'], 'barbell', [
+    'Set up with the bar on the floor and your torso nearly parallel to the floor.',
+    'Grip just outside shoulder-width with a flat back.',
+    'Row the bar explosively to your lower chest.',
+    'Return it to the floor and reset before each rep.',
+  ]),
+  ex('chest-supported-row', 'Chest-Supported Dumbbell Row', 'back', ['biceps', 'shoulders'], 'dumbbell', [
+    'Lie face down on a bench set to 30–45°, holding dumbbells.',
+    'Let your arms hang straight down.',
+    'Row the dumbbells up, squeezing your shoulder blades together.',
+    'Lower with control.',
+  ]),
+  ex('machine-row', 'Machine Row', 'back', ['biceps'], 'machine', [
+    'Adjust the chest pad so you can reach the handles with straight arms.',
+    'Pull the handles towards your torso.',
+    'Squeeze your mid-back at the end of each rep.',
+    'Return slowly.',
+  ]),
+  ex('single-arm-cable-row', 'Single-Arm Cable Row', 'back', ['biceps', 'core'], 'cable', [
+    'Set a handle at waist height and stand or kneel side-on.',
+    'Row the handle to your hip, keeping your torso still.',
+    'Reach forward fully on the way back for a stretch.',
+    'Complete all reps, then switch sides.',
+  ]),
+  ex('good-morning', 'Barbell Good Morning', 'back', ['legs', 'glutes'], 'barbell', [
+    'Rest a light barbell across your upper back, feet hip-width.',
+    'With soft knees, hinge at the hips and push them back.',
+    'Lower your torso until you feel a hamstring stretch, back flat.',
+    'Drive your hips forward to stand.',
+  ]),
+  ex('band-pull-apart', 'Band Pull-Apart', 'back', ['shoulders'], 'band', [
+    'Hold a light band in front of you at shoulder height, arms straight.',
+    'Pull the band apart by squeezing your shoulder blades.',
+    'Bring it to your chest.',
+    'Return slowly.',
+  ]),
+
+  // ───────────── SHOULDERS (more) ─────────────
+  ex('seated-db-press', 'Seated Dumbbell Press', 'shoulders', ['triceps'], 'dumbbell', [
+    'Sit on an upright bench with dumbbells at shoulder height.',
+    'Press them overhead until your arms are straight.',
+    'Lower back to shoulder level.',
+    'Keep your back against the pad.',
+  ]),
+  ex('cable-lateral-raise', 'Cable Lateral Raise', 'shoulders', [], 'cable', [
+    'Stand side-on to a low pulley and take the handle in your far hand.',
+    'Raise your arm out to the side to shoulder height.',
+    'Pause briefly.',
+    'Lower slowly. Complete all reps, then switch sides.',
+  ]),
+  ex('machine-lateral-raise', 'Machine Lateral Raise', 'shoulders', [], 'machine', [
+    'Adjust the seat so the pads sit on your outer arms.',
+    'Raise your arms out to the sides to shoulder height.',
+    'Pause at the top.',
+    'Lower with control.',
+  ]),
+  ex('reverse-pec-deck', 'Reverse Pec Deck', 'shoulders', ['back'], 'machine', [
+    'Sit facing the pec deck with the handles set to the rear position.',
+    'Grip with your arms straight in front of you.',
+    'Sweep your arms back until they line up with your body.',
+    'Return slowly.',
+  ]),
+  ex('landmine-press', 'Landmine Press', 'shoulders', ['chest', 'triceps', 'core'], 'barbell', [
+    'Wedge one end of a barbell into a corner or landmine attachment.',
+    'Hold the other end at your shoulder in a split stance.',
+    'Press the bar up and forward until your arm is straight.',
+    'Lower back to your shoulder. Complete all reps, then switch sides.',
+  ]),
+  ex('kb-halo', 'Kettlebell Halo', 'shoulders', ['core'], 'kettlebell', [
+    'Hold a light kettlebell upside down by the horns at chest height.',
+    'Circle it around your head, keeping it close.',
+    'Keep your core braced and hips still.',
+    'Alternate directions each rep.',
+  ]),
+  ex('plate-front-raise', 'Plate Front Raise', 'shoulders', [], 'dumbbell', [
+    'Hold a weight plate with both hands at the 3 and 9 o\'clock positions.',
+    'With arms nearly straight, raise it to eye level.',
+    'Pause at the top.',
+    'Lower slowly.',
+  ]),
+
+  // ───────────── BICEPS (more) ─────────────
+  ex('ez-bar-curl', 'EZ-Bar Curl', 'biceps', [], 'barbell', [
+    'Hold an EZ-bar on the angled grips, palms up.',
+    'Keep your elbows by your sides.',
+    'Curl the bar to shoulder height.',
+    'Lower slowly to full extension.',
+  ]),
+  ex('concentration-curl', 'Concentration Curl', 'biceps', [], 'dumbbell', [
+    'Sit on a bench and rest the back of your upper arm against your inner thigh.',
+    'Curl the dumbbell towards your shoulder.',
+    'Squeeze hard at the top.',
+    'Lower slowly. Complete all reps, then switch arms.',
+  ]),
+  ex('spider-curl', 'Spider Curl', 'biceps', [], 'dumbbell', [
+    'Lie face down on an incline bench with your arms hanging straight down.',
+    'Curl the dumbbells up without moving your upper arms.',
+    'Squeeze at the top.',
+    'Lower to a full stretch.',
+  ]),
+  ex('reverse-curl', 'Reverse-Grip Curl', 'biceps', [], 'barbell', [
+    'Hold a barbell or EZ-bar with an overhand grip, shoulder-width.',
+    'Keep your elbows tucked.',
+    'Curl the bar up to shoulder height.',
+    'Lower slowly. This also trains your forearms.',
+  ]),
+  ex('zottman-curl', 'Zottman Curl', 'biceps', [], 'dumbbell', [
+    'Curl the dumbbells up with your palms facing up.',
+    'At the top, rotate your palms to face down.',
+    'Lower slowly with the overhand grip.',
+    'Rotate back to palms up at the bottom.',
+  ]),
+  ex('bayesian-curl', 'Bayesian Cable Curl', 'biceps', [], 'cable', [
+    'Set a low pulley behind you and hold the handle with your arm stretched back.',
+    'Step forward so there is tension in the cable.',
+    'Curl the handle forward and up, keeping your elbow behind your body.',
+    'Lower to a full stretch. Complete all reps, then switch arms.',
+  ]),
+  ex('machine-preacher-curl', 'Machine Bicep Curl', 'biceps', [], 'machine', [
+    'Adjust the seat so your upper arms rest flat on the pad.',
+    'Grip the handles with your palms up.',
+    'Curl up until your biceps are fully contracted.',
+    'Lower slowly.',
+  ]),
+  ex('chin-up-negative', 'Chin-Up Negatives', 'biceps', ['back'], 'bodyweight', [
+    'Use a box to get your chin over the bar with an underhand grip.',
+    'Step off and lower yourself as slowly as you can (3–5 seconds).',
+    'Reach a dead hang.',
+    'Step back up and repeat. Great for building towards full chin-ups.',
+  ]),
+
+  // ───────────── TRICEPS (more) ─────────────
+  ex('rope-overhead-extension', 'Cable Overhead Rope Extension', 'triceps', [], 'cable', [
+    'Face away from a high pulley holding a rope behind your head.',
+    'Step forward into a split stance with your elbows pointing forward.',
+    'Extend your arms until straight.',
+    'Return slowly to a deep stretch.',
+  ]),
+  ex('rope-pushdown', 'Rope Pushdown', 'triceps', [], 'cable', [
+    'Attach a rope to a high pulley.',
+    'Tuck your elbows by your sides.',
+    'Push down and spread the rope ends apart at the bottom.',
+    'Return to about 90° at the elbow.',
+  ]),
+  ex('jm-press', 'JM Press', 'triceps', ['chest'], 'barbell', [
+    'Lie on a bench holding a barbell with a close grip.',
+    'Lower the bar towards your upper chest/chin, letting your elbows travel forward.',
+    'Stop just above your throat.',
+    'Press back to lockout. Use light weight to learn it.',
+  ]),
+  ex('tate-press', 'Tate Press', 'triceps', [], 'dumbbell', [
+    'Lie on a bench with dumbbells above your chest, palms facing your feet.',
+    'Bend your elbows outward to lower the dumbbells to your chest.',
+    'Keep your upper arms still.',
+    'Extend back up.',
+  ]),
+  ex('close-grip-push-up', 'Close-Grip Push-Up', 'triceps', ['chest'], 'bodyweight', [
+    'Place your hands directly under your shoulders.',
+    'Keep your elbows tucked tight to your sides.',
+    'Lower your chest towards your hands.',
+    'Press back up.',
+  ]),
+  ex('machine-dip', 'Machine Tricep Dip', 'triceps', ['chest'], 'machine', [
+    'Sit in the dip machine and grip the handles beside you.',
+    'Press down until your arms are straight.',
+    'Return slowly until your elbows reach about 90°.',
+    'Keep your shoulders down and back.',
+  ]),
+  ex('band-pushdown', 'Band Tricep Pushdown', 'triceps', [], 'band', [
+    'Anchor a band above head height.',
+    'Hold the ends with your elbows tucked.',
+    'Push down until your arms are straight.',
+    'Return slowly.',
+  ]),
+
+  // ───────────── LEGS (more) ─────────────
+  ex('sissy-squat', 'Sissy Squat', 'legs', ['core'], 'bodyweight', [
+    'Hold onto a support and rise onto the balls of your feet.',
+    'Lean back as you bend your knees forward, keeping hips extended.',
+    'Lower as far as is comfortable.',
+    'Drive back up using your quads.',
+  ]),
+  ex('nordic-curl', 'Nordic Hamstring Curl', 'legs', [], 'bodyweight', [
+    'Kneel with your ankles secured under something sturdy or held by a partner.',
+    'Keeping your body straight, lower yourself forward as slowly as possible.',
+    'Catch yourself with your hands.',
+    'Push back up and use your hamstrings to return.',
+  ]),
+  ex('seated-calf-raise', 'Seated Calf Raise', 'legs', [], 'machine', [
+    'Sit with the pad on your lower thighs and the balls of your feet on the platform.',
+    'Lower your heels for a deep stretch.',
+    'Push up onto your toes as high as possible.',
+    'Pause, then lower slowly.',
+  ]),
+
+  // ───────────── GLUTES (more) ─────────────
+  ex('db-hip-thrust', 'Dumbbell Hip Thrust', 'glutes', ['legs'], 'dumbbell', [
+    'Sit with your upper back against a bench and a dumbbell on your hips.',
+    'Plant your feet hip-width apart.',
+    'Drive your hips up until your body is flat from shoulders to knees.',
+    'Squeeze your glutes, then lower.',
+  ]),
+  ex('cable-pull-through', 'Cable Pull-Through', 'glutes', ['legs', 'back'], 'cable', [
+    'Face away from a low pulley holding a rope between your legs.',
+    'Hinge at the hips, letting the rope pull your hands back.',
+    'Drive your hips forward to stand tall.',
+    'Squeeze your glutes at the top.',
+  ]),
+  ex('glute-kickback-machine', 'Machine Glute Kickback', 'glutes', [], 'machine', [
+    'Position yourself on the machine with one foot on the platform.',
+    'Push the platform back by extending your hip.',
+    'Squeeze your glute at the top.',
+    'Return slowly. Complete all reps, then switch sides.',
+  ]),
+  ex('hip-abduction-machine', 'Hip Abduction Machine', 'glutes', [], 'machine', [
+    'Sit in the machine with the pads on the outside of your knees.',
+    'Push your knees outward.',
+    'Pause at the widest point.',
+    'Return slowly.',
+  ]),
+  ex('frog-pump', 'Frog Pump', 'glutes', [], 'bodyweight', [
+    'Lie on your back with the soles of your feet together and knees out wide.',
+    'Drive your hips up by squeezing your glutes.',
+    'Pause at the top.',
+    'Lower and repeat quickly for high reps.',
+  ]),
+  ex('curtsy-lunge', 'Curtsy Lunge', 'glutes', ['legs'], 'bodyweight', [
+    'Stand tall with your feet hip-width apart.',
+    'Step one leg behind and across the other.',
+    'Lower until your front thigh is near parallel.',
+    'Push back to the start and alternate sides.',
+  ]),
+  ex('fire-hydrant', 'Fire Hydrant', 'glutes', ['core'], 'bodyweight', [
+    'Start on all fours.',
+    'Keeping your knee bent, lift one leg out to the side.',
+    'Keep your hips level.',
+    'Lower and repeat. Complete all reps, then switch sides.',
+  ]),
+  ex('step-back-lunge-db', 'Deficit Reverse Lunge', 'glutes', ['legs'], 'dumbbell', [
+    'Stand on a low step holding dumbbells.',
+    'Step one foot back off the step and lower your back knee.',
+    'Lean slightly forward to bias your glutes.',
+    'Drive through the front heel to return.',
+  ]),
+
+  // ───────────── CORE (more) ─────────────
+  ex('bicycle-crunch', 'Bicycle Crunch', 'core', [], 'bodyweight', [
+    'Lie on your back with hands lightly by your head and knees raised.',
+    'Bring one elbow towards the opposite knee while extending the other leg.',
+    'Switch sides in a pedalling motion.',
+    'Move with control rather than speed.',
+  ]),
+  ex('hollow-hold', 'Hollow Body Hold', 'core', [], 'bodyweight', [
+    'Lie on your back and press your lower back into the floor.',
+    'Lift your shoulders and legs off the floor, arms overhead.',
+    'Hold the position without your back arching.',
+    'Bend your knees to make it easier.',
+  ]),
+  ex('reverse-crunch', 'Reverse Crunch', 'core', [], 'bodyweight', [
+    'Lie on your back with knees bent at 90° above your hips.',
+    'Curl your hips off the floor, bringing knees towards your chest.',
+    'Lower slowly without swinging.',
+    'Keep your hands by your sides for support.',
+  ]),
+  ex('bird-dog', 'Bird Dog', 'core', ['back', 'glutes'], 'bodyweight', [
+    'Start on all fours.',
+    'Extend one arm forward and the opposite leg back.',
+    'Hold for 2 seconds without rotating your hips.',
+    'Return and switch sides.',
+  ]),
+  ex('woodchopper', 'Cable Woodchopper', 'core', ['shoulders'], 'cable', [
+    'Set a cable high and stand side-on, holding the handle with both hands.',
+    'Pull the handle down and across your body to the opposite hip.',
+    'Rotate through your torso and pivot your back foot.',
+    'Return slowly. Complete all reps, then switch sides.',
+  ]),
+  ex('toe-touch', 'Toes-to-Sky Crunch', 'core', [], 'bodyweight', [
+    'Lie on your back with your legs pointing straight up.',
+    'Reach your hands towards your toes, lifting your shoulders.',
+    'Lower slowly.',
+    'Keep your legs still throughout.',
+  ]),
+
+  // ───────────── CARDIO (more) ─────────────
+  ex('assault-bike', 'Air Bike Sprints', 'cardio', ['legs', 'full body'], 'machine', [
+    'Set the seat so your knee is slightly bent at the bottom.',
+    'Push and pull the handles as you pedal.',
+    'Sprint hard for the work interval.',
+    'Pedal easily to recover, then repeat.',
+  ]),
+  ex('elliptical', 'Cross Trainer', 'cardio', ['legs'], 'machine', [
+    'Step onto the pedals and hold the moving handles.',
+    'Warm up at a light resistance.',
+    'Work at a steady pace or in intervals.',
+    'Low impact and joint-friendly.',
+  ]),
+  ex('stair-climber', 'Stair Climber', 'cardio', ['legs', 'glutes'], 'machine', [
+    'Step onto the machine and hold the rails lightly for balance only.',
+    'Climb at a steady pace, standing tall.',
+    'Push through your whole foot on each step.',
+    'Cool down for 2–3 minutes at a slower pace.',
+  ]),
+  ex('sled-push', 'Sled Push', 'cardio', ['legs', 'full body'], 'machine', [
+    'Grip the sled handles with your arms extended, leaning forward.',
+    'Drive through the balls of your feet with short, powerful steps.',
+    'Keep your back flat.',
+    'Push for the set distance, then rest.',
+  ]),
+  ex('shadow-boxing', 'Shadow Boxing', 'cardio', ['shoulders', 'core'], 'bodyweight', [
+    'Stand in a staggered stance with your hands up guarding your face.',
+    'Throw combinations of punches, rotating through your hips.',
+    'Stay light on your feet and keep moving.',
+    'Work in rounds, e.g. 2 minutes on, 1 minute off.',
+  ]),
+  ex('box-jump', 'Box Jump', 'cardio', ['legs', 'glutes'], 'bodyweight', [
+    'Stand facing a sturdy box at a comfortable height.',
+    'Swing your arms and jump onto the box, landing softly.',
+    'Stand up fully on top.',
+    'Step down (don\'t jump down) and repeat.',
+  ]),
+  ex('skater-jump', 'Skater Jumps', 'cardio', ['legs', 'glutes'], 'bodyweight', [
+    'Stand on one leg.',
+    'Leap sideways onto the other foot, swinging your arms.',
+    'Land softly and immediately bound back.',
+    'Keep a steady rhythm.',
+  ]),
+
+  // ───────────── FULL BODY (more) ─────────────
+  ex('power-clean', 'Power Clean', 'full body', ['legs', 'back', 'shoulders'], 'barbell', [
+    'Start with the bar over mid-foot, gripping just outside your knees.',
+    'Drive through the floor and extend your hips explosively.',
+    'Pull yourself under the bar and catch it on your front shoulders in a quarter squat.',
+    'Stand up. Learn with a qualified coach and light weight first.',
+  ]),
+  ex('db-snatch', 'Dumbbell Snatch', 'full body', ['shoulders', 'glutes'], 'dumbbell', [
+    'Stand with a dumbbell between your feet.',
+    'Hinge and grip it with one hand.',
+    'Explode up through your hips and pull the dumbbell overhead in one motion.',
+    'Lower with control. Alternate arms or complete one side at a time.',
+  ]),
+  ex('kb-goblet-clean', 'Kettlebell Swing to Squat', 'full body', ['glutes', 'legs'], 'kettlebell', [
+    'Perform a kettlebell swing to chest height.',
+    'Catch the bell by the horns at your chest.',
+    'Drop into a goblet squat.',
+    'Stand, return to the swing and repeat.',
+  ]),
+  ex('wall-ball', 'Wall Ball', 'full body', ['legs', 'shoulders'], 'bodyweight', [
+    'Hold a medicine ball at your chest, facing a wall.',
+    'Squat down to parallel.',
+    'Drive up and throw the ball to a target on the wall.',
+    'Catch it and go straight into the next squat.',
+  ]),
+  ex('sandbag-carry', 'Bear-Hug Carry', 'full body', ['core', 'back'], 'dumbbell', [
+    'Hug a sandbag or heavy dumbbell tight against your chest.',
+    'Stand tall with your core braced.',
+    'Walk with short, controlled steps.',
+    'Set it down with a flat back.',
+  ]),
+  ex('renegade-row', 'Renegade Row', 'full body', ['back', 'core'], 'dumbbell', [
+    'Start in a high plank holding dumbbells on the floor, feet wide.',
+    'Row one dumbbell to your hip without rotating your hips.',
+    'Place it down and row the other.',
+    'Add a push-up between rows for more challenge.',
+  ]),
+  ex('squat-to-press', 'Band Squat to Press', 'full body', ['legs', 'shoulders'], 'band', [
+    'Stand on a band holding the handles at your shoulders.',
+    'Squat down to parallel.',
+    'Drive up and press your hands overhead.',
+    'Lower to your shoulders as you descend into the next squat.',
+  ]),
+  ex('inchworm', 'Inchworm', 'full body', ['core', 'shoulders'], 'bodyweight', [
+    'Stand tall and hinge forward to place your hands on the floor.',
+    'Walk your hands out to a high plank.',
+    'Pause, then walk your hands back to your feet.',
+    'Stand up and repeat.',
+  ]),
+  ex('sprawl', 'Sprawl', 'full body', ['cardio', 'core'], 'bodyweight', [
+    'From standing, drop your hands to the floor.',
+    'Jump your feet back and let your hips drop towards the floor.',
+    'Jump your feet back in.',
+    'Stand up quickly and repeat.',
+  ]),
+  ex('db-complex', 'Dumbbell Complex', 'full body', ['legs', 'shoulders', 'core'], 'dumbbell', [
+    'Hold dumbbells at your shoulders.',
+    'Perform a front squat, then a push press, then a reverse lunge on each leg.',
+    'That is one rep of the complex.',
+    'Rest only when the set is complete.',
+  ]),
 ];
 
 export const EXERCISES_BY_ID: Record<string, LibraryExercise> = Object.fromEntries(EXERCISES.map((e) => [e.id, e]));
